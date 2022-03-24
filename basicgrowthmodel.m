@@ -26,7 +26,9 @@ Params.sigma=2;%CRRA parameter for the utility function, 1 corresponds to log ut
 Params.T=60;%number of transition periods, should be big enough so that the paths converge.
 
 %guess for the steady state
-guess=[0.5;0.5;0.5];%guess for the ss capital stock, consumption and labor supply
+%%add one for the discount rate
+
+guess=[0.5;0.5;0.5;0.5];%guess for the ss capital stock, consumption and labor supply
 opts=optimset();%need to define this structure to add additional input arguments
 %to ss_equs and trans_equs used by fsolve see MATLAB help for optimset and fsolve. 
 
@@ -83,19 +85,27 @@ function z=ss_equs(x,Params)
 k=x(1);
 c=x(2);
 n=x(3);
+%extend x with the discount factor
+disc = x(4);
 
 f=k^Params.alpha*n^(1-Params.alpha);
 fdk=Params.alpha*k^(Params.alpha-1)*n^(1-Params.alpha);
 fdn=(1-Params.alpha)*k^Params.alpha*n^(-Params.alpha);
+
+%add equation for the calibration
+
 
 [~, udc, udl]=util(c,n,Params);
 
 %steady state equations
 z=zeros(3,1);
 
+disc = 
+
 z(1)=Params.beta*(1+fdk-Params.delta)-1;
 z(2)=udc*fdn-udl;
 z(3)=c+Params.delta*k-f;
+
 
 end
 
