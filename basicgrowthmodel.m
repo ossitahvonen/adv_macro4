@@ -18,17 +18,18 @@ function R=basicgrowthmodel(k_init_ratio)
 %      util.m ss_equs.m trans_equs.m
 
 %create a structure Params that collects all parameter values
-Params.beta=0.9;%discount factor
-Params.c_share=0.5;%consumption share in the utility function
+%Params.beta=0.9;%discount factor
+Params.c_share=0.4;%consumption share in the utility function
 Params.delta=0.1;%capital depreciation rate
-Params.alpha=0.333;%capital share
+Params.alpha=0.4;%capital share
 Params.sigma=2;%CRRA parameter for the utility function, 1 corresponds to log utility
 Params.T=60;%number of transition periods, should be big enough so that the paths converge.
 
 %guess for the steady state
 %%add one for the discount rate
+%choose 0.9 since it is in the default program
 
-guess=[0.5;0.5;0.5;0.5];%guess for the ss capital stock, consumption and labor supply
+guess=[0.5;0.5;0.5;0.96];%guess for the ss capital stock, consumption and labor supply
 opts=optimset();%need to define this structure to add additional input arguments
 %to ss_equs and trans_equs used by fsolve see MATLAB help for optimset and fsolve. 
 
@@ -42,16 +43,22 @@ assert(max(abs(errors))<1e-5,'ss not solved')
 ss_k=ss(1);
 ss_c=ss(2);
 ss_n=ss(3);
+%added
+ss_beta=ss(4);
 
-disp('steady state capital, consumption and labour:')
-[ss_k ss_c ss_n]
+%to show the steady state output
+ss_output = ss_k^Params.alpha*ss_n^(1-Params.alpha);
+ss_ratio = ss_k/ss_output;
+
+disp('steady state capital, consumption, labour, beta, output and capital/output:')
+[ss_k ss_c ss_n ss_beta ss_output ss_ratio]
 
 %determine the initial capital stock
 Params.k_init=k_init_ratio*ss_k;
 
 %guess for the transition. (a rather stupid initial guess, if you have
 %problems, try to construct a more reasonable guess that converges slowly to the ss.)
-guess=[ss_k*ones(Params.T-1,1);ss_n*ones(Params.T,1);ss_c*ones(Params.T,1)];
+guess=[ss_k*ones(Params.T-1,1);ss_n*ones(Params.T,1);ss_c*ones(Params.T,1);ss_beta];
 
 %solve for the transition
 [tr, errors]=fsolve(@trans_equs,guess,opts,Params);
@@ -86,25 +93,27 @@ k=x(1);
 c=x(2);
 n=x(3);
 %extend x with the discount factor
-disc = x(4);
+beta = x(4);
 
 f=k^Params.alpha*n^(1-Params.alpha);
 fdk=Params.alpha*k^(Params.alpha-1)*n^(1-Params.alpha);
 fdn=(1-Params.alpha)*k^Params.alpha*n^(-Params.alpha);
-
-%add equation for the calibration
-
 
 [~, udc, udl]=util(c,n,Params);
 
 %steady state equations
 z=zeros(3,1);
 
-disc = 
 
-z(1)=Params.beta*(1+fdk-Params.delta)-1;
+
+z(1)=beta*(1+fdk-Params.delta)-1;
 z(2)=udc*fdn-udl;
 z(3)=c+Params.delta*k-f;
+%add eq such form that the equation = 0
+%z(4)=1/(1-Params.delta-Params.alpha*k^(2*Params.alpha-2)-3)-beta
+%from https://paulgomme.github.io/calibration.pdf
+%z(4)=beta*(Params.alpha*(3)^(1-Params.alpha)*((k^(2*Params.alpha-2))/Params.alpha)+1-Params.delta)-1;
+z(4)=beta*(Params.alpha*(n/((3/1*n^(1-Params.alpha))^(1/(1-Params.alpha))))^(1-Params.alpha)+1-Params.delta)-1;
 
 
 end
@@ -134,6 +143,7 @@ k(2:T)=x(1:T-1,1);%  guess for the capital stock in periods 2,3,4,...,T
 n=x(T:2*T-1,1);% guess for the labor supply in periods 1,2,3,...,T
 c=x(2*T:3*T-1,1);% guess for consumption in periods 1,2,3,...,T
 k(1)=Params.k_init;
+beta=x(4);
 
 %output and its derivatives
 f=k.^alpha.*n.^(1-alpha);
@@ -149,12 +159,12 @@ euler=zeros(T,1);
 % specify a system of 3*T -1 equations that need to be solved
 for t=1:T-1
     laborfoc(t)=udc(t)*fdn(t)-udl(t);
-    euler(t)=udc(t)-Params.beta*udc(t+1)*(1+fdk(t+1)-Params.delta);
+    euler(t)=udc(t)-beta*udc(t+1)*(1+fdk(t+1)-Params.delta);
     aggresource(t)=c(t)+k(t+1)-f(t)-(1-Params.delta)*k(t);
 end
 
 laborfoc(T)=udc(T)*fdn(T)-udl(T);
-euler(T)=udc(T)-Params.beta*udc(T)*(1+fdk(T)-Params.delta);
+euler(T)=udc(T)-beta*udc(T)*(1+fdk(T)-Params.delta);
 
 %stack the errors
 z=[aggresource;laborfoc;euler];

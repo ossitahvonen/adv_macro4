@@ -1,1 +1,1 @@
-basicgrowthmodel(0.5)
+basicgrowthmodel(1.5)
