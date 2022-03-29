@@ -113,7 +113,8 @@ z(3)=c+Params.delta*k-f;
 %z(4)=1/(1-Params.delta-Params.alpha*k^(2*Params.alpha-2)-3)-beta
 %from https://paulgomme.github.io/calibration.pdf
 %z(4)=beta*(Params.alpha*(3)^(1-Params.alpha)*((k^(2*Params.alpha-2))/Params.alpha)+1-Params.delta)-1;
-z(4)=beta*(Params.alpha*(n/((3/1*n^(1-Params.alpha))^(1/(1-Params.alpha))))^(1-Params.alpha)+1-Params.delta)-1;
+%z(4)=beta*(Params.alpha*(n/((3/1*n^(1-Params.alpha))^(1/(1-Params.alpha))))^(1-Params.alpha)+1-Params.delta)-1;
+z(4)=beta*(Params.alpha*(n/((3/(n^(Params.alpha-1)))^(1/(1-Params.alpha))))^(1-Params.alpha)+1-Params.delta)-1;
 
 
 end
