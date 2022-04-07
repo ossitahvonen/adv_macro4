@@ -1,9 +1,9 @@
-%%Advanced Macroeconomics 4 2022, Niku M‰‰tt‰nen
+%%Advanced Macroeconomics 4 2022, Niku M√§√§tt√§nen
 %Programs to solve a basic stochastic life cycle savings model
 %with a flat rate pension system. Save survivalprobs.xls in the same folder with this file.
 %Write e.g. R=lifecycle() in the command window. To plot e.g. the
 %average savings profile, use the command plot(mean(R.A')). To plot e.g.
-%the first individual savings profÌle, use the command plot(R.A(:,1)).
+%the first individual savings prof√≠le, use the command plot(R.A(:,1)).
 
 function out=lifecycle()
     global Params
@@ -79,8 +79,8 @@ function out=lifecycle()
     n_indivs=Params.n_indivs;
     A=zeros(Params.MaxAge,Params.n_indivs);
     C=zeros(Params.MaxAge,Params.n_indivs);
-    S=zeros(Params.MaxAge,Params.n_indivs);     
-    Inv = zeros(Params.MaxAge,Params.n_indivs);
+    S=zeros(Params.MaxAge,Params.n_indivs);
+
     disp('Simulating...')
     
     for i=1:n_indivs
@@ -88,26 +88,21 @@ function out=lifecycle()
         %probablities for each shock
         i_s=randsample([1:1:Params.n_s]',1,true,ones(1,Params.n_s)/Params.n_s); %see MATLAB documentation for randsample
         state=[0 i_s];%initial state
-
-        %%init c_prev: this is used to save the c from prev period
-        c_prev = 1;
         for age=1:Params.MaxAge
             c=interp1(Params.a_grid,Cons(:,state(2),age),state(1),Params.interptype,'extrap');
             A(age,i)=state(1);
             C(age,i)=c;
             S(age,i)=state(2);
-
-            %%
-            inv = c -(1-Params.delta)*c_prev
-            Inv(age,i)=inv;
-            %update c_prev
-            c_prev = c;
             anext=nextAsset(c,state,age,Params);
             i_s_next=randsample([1:1:Params.n_s]',1,true,Params.P(i_s,:)); %next period shock 
             state=[anext i_s_next];%next state
         end
     end
 %%
+%changed
+    for i =1:indivs
+        inv(,) = C-(1-Params.delta)*C(-1);
+    end
 %%
     %collect the results into the output argument (structure)
     out=struct('A',A,'C',C,'ValVec',ValVec,'Cons',Cons,'Anext',Anext,'S',S,'Params',Params,'Inv',inv ); %a concise way of defining a structure
