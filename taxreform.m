@@ -13,6 +13,13 @@ function R=taxreform
 %OTHER FUNCTIONS:
 %      util.m ss_equs.m trans_equs.m welfare_equ.m 
 
+
+%set s for the time of the change:
+%s=5;
+
+
+
+
 Params.delta=0.1;
 Params.alpha=0.4;
 Params.sigma=2;
@@ -125,7 +132,10 @@ r=fdk-Params.delta;
 w=fdn;
 tk=Params.tk2*ones(T,1);
 
-tk(1)=Params.tk1;
+%set s for the time of the change:
+s=30;
+
+tk(1:s)=Params.tk1;
 tn=tn*ones(T,1);
 tc=Params.tc2*ones(T,1);
 
