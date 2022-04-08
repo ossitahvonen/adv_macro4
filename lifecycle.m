@@ -110,7 +110,7 @@ function out=lifecycle()
 %%
 %%
     %collect the results into the output argument (structure)
-    out=struct('A',A,'C',C,'ValVec',ValVec,'Cons',Cons,'Anext',Anext,'S',S,'Params',Params,'Inv',inv ); %a concise way of defining a structure
+    out=struct('A',A,'C',C,'ValVec',ValVec,'Cons',Cons,'Anext',Anext,'S',S,'Params',Params,'Inv',Inv ); %a concise way of defining a structure
 end
 
 function z=value(c,state,age,ValVec,Params)
