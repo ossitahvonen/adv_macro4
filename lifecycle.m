@@ -90,7 +90,7 @@ function out=lifecycle()
         state=[0 i_s];%initial state
 
         %%init c_prev: this is used to save the c from prev period
-        c_prev = 1;
+        a_prev = 1;
         for age=1:Params.MaxAge
             c=interp1(Params.a_grid,Cons(:,state(2),age),state(1),Params.interptype,'extrap');
             A(age,i)=state(1);
@@ -98,10 +98,10 @@ function out=lifecycle()
             S(age,i)=state(2);
 
             %%
-            inv = c -(1-Params.delta)*c_prev
+            inv = state(1) -(1-Params.delta)*a_prev
             Inv(age,i)=inv;
             %update c_prev
-            c_prev = c;
+            a_prev = state(1);
             anext=nextAsset(c,state,age,Params);
             i_s_next=randsample([1:1:Params.n_s]',1,true,Params.P(i_s,:)); %next period shock 
             state=[anext i_s_next];%next state
