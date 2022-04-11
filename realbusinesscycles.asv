@@ -59,19 +59,21 @@ end
 
 function S=Simulate(PolicyKnext,Params,k_init)
 k=k_init; %first period capital
+%init k_prev
+k_prev = k_init
 i_s=1; %first period shock
-S.k=zeros(Params.nSimulatedPeriods,1);S.i_s=S.k;S.y=S.k;S.inv = S.k;S.c = S.k;% preallocating vectors
+S.k=zeros(Params.nSimulatedPeriods,1);S.i_s=S.k;S.y=S.k;S.inv = S.k;S.% preallocating vectors
 for t=1:Params.nSimulatedPeriods
     S.k(t)=k;
     S.i_s(t)=i_s;
     S.y(t)=output(k,i_s,Params);
-  
     %calculate investments
+    S.inv(t) = k-(1-Params.delta)*k_prev;
+    %update k_prev to match this periods k
+    k_prev=k;
     knext=interp1(Params.k_grid,PolicyKnext(:,i_s),k);%next period capital interpolated from the policy function
     i_s=randsample([1;2],1,true,Params.P(i_s,:)); %one way of drawing a random shock based on Params.P, see MATLAB documentation for randsample
     k=knext;
-    S.inv(t) = knext-(1-Params.delta)*k;
-    S.c(t)=output(k,i_s,Params)+(1-Params.delta)*k-knext;
 end
 end
 
